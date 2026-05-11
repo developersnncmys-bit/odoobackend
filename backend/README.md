@@ -1,0 +1,172 @@
+# Absolute Concepts CRM — Backend API
+
+Node.js + Express + **MongoDB (Mongoose)** REST API for the Odoo CRM flow described in the requirements document.
+
+- **Runtime:** Node 18+ (ESM)
+- **Framework:** Express 4
+- **ORM:** Mongoose 8
+- **Architecture:** classic MVC — `routes/` → `controllers/` → `models/`
+- **Port:** `4000` (override via `PORT`)
+
+Data is created exclusively through the API (which the React frontend calls). There is no fixture seeding — start the server and the DB is empty until you POST records.
+
+---
+
+## Setup
+
+1. **Install** dependencies
+
+   ```bash
+   cd backend
+   npm install
+   ```
+
+2. **Create `.env`** in `backend/` (copy from `.env.example`):
+
+   ```env
+   MONGODB_URI=mongodb://127.0.0.1:27017/absolute_crm
+   PORT=4000
+   ```
+
+   For MongoDB Atlas use the SRV URI from the cluster's "Connect" dialog. If you don't include a database name in the path (e.g. `…mongodb.net/?appName=Cluster0`), the server defaults to `odoocrm` and prints a warning — change `DEFAULT_DB` in [src/config/db.js](src/config/db.js) if you want a different name.
+
+3. **Run**
+
+   ```bash
+   npm run dev    # nodemon — restart on file change
+   npm start      # production-style boot
+   ```
+
+   Verify with `curl http://localhost:4000/api/health`.
+
+---
+
+## Folder structure
+
+```
+backend/
+├── .env                # ← you create this (not committed)
+├── .env.example
+├── package.json
+├── README.md
+└── src/
+    ├── server.js              # entry: env → Mongo → routes → listen
+    ├── config/
+    │   └── db.js              # mongoose.connect() with retry + DB-name default
+    ├── utils/
+    │   ├── constants.js       # enums (stages, statuses, categories, GST)
+    │   └── ids.js             # Counter-backed atomic ID generator
+    ├── models/                # Mongoose schemas (one file per resource)
+    │   ├── index.js
+    │   ├── Counter.js
+    │   ├── Lead.js
+    │   ├── Project.js
+    │   ├── Proposal.js
+    │   ├── Invoice.js
+    │   ├── CalendarEvent.js
+    │   ├── Document.js
+    │   ├── TeamMember.js
+    │   └── Notification.js
+    ├── controllers/           # business logic (one file per module)
+    │   ├── leadController.js
+    │   ├── projectController.js
+    │   ├── proposalController.js
+    │   ├── invoiceController.js
+    │   ├── calendarController.js
+    │   ├── documentController.js
+    │   ├── teamController.js
+    │   ├── notificationController.js
+    │   ├── dashboardController.js
+    │   └── metaController.js
+    ├── routes/                # thin Express.Routers (verbs + paths only)
+    │   ├── leads.js
+    │   ├── projects.js
+    │   ├── proposals.js
+    │   ├── invoices.js
+    │   ├── calendar.js
+    │   ├── documents.js
+    │   ├── team.js
+    │   ├── notifications.js
+    │   ├── dashboard.js
+    │   └── meta.js
+    └── middleware/
+        ├── async-handler.js   # wrap() + HttpError
+        └── errors.js          # 404 + central error handler
+```
+
+---
+
+## Endpoint reference (mapped to the requirements doc)
+
+| Section | Endpoints |
+|---|---|
+| Controlled vocabularies | `GET /api/meta` |
+| §4 Lead Management, §15 Lost-lead | `GET POST /api/leads`, `GET PATCH DELETE /api/leads/:id`, `POST /api/leads/:id/activities`, `/win`, `/lose`, `/reopen` |
+| §6 Opportunity → Project | `POST /api/leads/:id/win` (auto-creates project, calendar entries, accounts notification) |
+| §7 Projects, §10.2 Chatbox | `GET POST /api/projects`, `GET PATCH /api/projects/:id`, tasks `POST PATCH DELETE /api/projects/:id/tasks[/:taskId]`, vendors `POST /api/projects/:id/vendors`, chat `GET POST /api/projects/:id/messages` |
+| §8 Proposals | `GET POST /api/proposals`, `GET PATCH DELETE /api/proposals/:id`, `POST /api/proposals/:id/version` |
+| §9 Documents | `GET POST /api/documents`, `DELETE /api/documents/:id` |
+| §5 Calendar | `GET POST /api/calendar`, `PATCH DELETE /api/calendar/:id` |
+| §11 Departments, §12 RBAC | `GET POST /api/team`, `GET PATCH DELETE /api/team/:id` |
+| §11.5 + §14.3 Accounts | `GET POST /api/invoices`, `GET PATCH /api/invoices/:id`, `POST /api/invoices/:id/pay` |
+| §16 Notifications | `GET POST /api/notifications`, `PATCH /api/notifications/:id/read`, `POST /api/notifications/mark-all-read` |
+| §14 Dashboards | `GET /api/dashboard/summary`, `/lead-sources`, `/by-category`, `/team-productivity`, `/upcoming`, `/lost-leads` |
+
+---
+
+## Query filters
+
+| Endpoint | Filters |
+|---|---|
+| `/api/leads` | `stage`, `category`, `source`, `owner`, `q` |
+| `/api/projects` | `status`, `stage`, `category` |
+| `/api/proposals` | `status`, `category`, `leadId` |
+| `/api/invoices` | `status`, `projectId` |
+| `/api/calendar` | `from`, `to` (YYYY-MM-DD), `dept`, `type` (event/setup/recce/meeting) |
+| `/api/documents` | `linkedTo`, `type` |
+| `/api/team` | `role` |
+| `/api/notifications` | `unread=true` |
+
+---
+
+## How IDs work
+
+Resource IDs (`L-1001`, `P-2001`, `INV-4001`, etc.) are generated by atomic `$inc` against the `counters` collection. On first boot the counters are seeded to (first-ID − 1) so the first allocation returns the configured starting value.
+
+| Collection | Prefix | First ID |
+|---|---|---|
+| leads | `L-` | `L-1001` |
+| projects | `P-` | `P-2001` |
+| proposals | `PR-` | `PR-3001` |
+| invoices | `INV-` | `INV-4001` |
+| calendarEvents | `E-` | `E-1` |
+| documents | `D-` | `D-1` |
+| team | `u` | `u1` |
+| notifications | `N` | `N1` |
+
+Sub-resource IDs (tasks `t1`, messages `m1`) are generated inside the parent document.
+
+The Mongoose `toJSON` transform rewrites `_id → id` in every response so the API speaks the same vocabulary as the frontend.
+
+---
+
+## Errors
+
+```json
+{ "error": "Missing required fields", "details": { "missing": ["contact", "venue"] } }
+```
+
+- `400` validation (missing fields, invalid enum, bad email, out-of-range probability)
+- `404` not found
+- `500` unexpected (logged to stderr; never includes stack traces in the response)
+
+---
+
+## Troubleshooting
+
+| Symptom | Cause / Fix |
+|---|---|
+| `[fatal] MONGODB_URI is not set.` | Create `backend/.env` from `.env.example` |
+| `port 4000 is already in use` | Stop the previous server or set `PORT` to something else |
+| `Server selection timed out` then retry succeeds | Atlas SRV / first-handshake flake — the connection retries 3× automatically |
+| All 3 retries fail with whitelist hint | Atlas IP whitelist — go to cloud.mongodb.com → your project → Network Access → Add IP |

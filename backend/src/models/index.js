@@ -1,0 +1,10 @@
+// Barrel export — single import point for every Mongoose model.
+export { default as Counter }       from './Counter.js'
+export { default as Lead }          from './Lead.js'
+export { default as Project }       from './Project.js'
+export { default as Proposal }      from './Proposal.js'
+export { default as Invoice }       from './Invoice.js'
+export { default as CalendarEvent } from './CalendarEvent.js'
+export { default as Document }      from './Document.js'
+export { default as TeamMember }    from './TeamMember.js'
+export { default as Notification }  from './Notification.js'
