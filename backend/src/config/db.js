@@ -51,7 +51,8 @@ export async function connectDb() {
       return
     } catch (err) {
       const isLast = attempt === MAX_ATTEMPTS
-      console.error(`[mongo] attempt ${attempt}/${MAX_ATTEMPTS} failed: ${err.message.split('\n')[0]}`)
+      console.error(`[mongo] attempt ${attempt}/${MAX_ATTEMPTS} failed:`)
+console.error(err)
       if (isLast) {
         console.error('\n[fatal] could not connect to MongoDB after retries.')
         if (/whitelist|IP address|ECONNREFUSED|ENOTFOUND|querySrv/i.test(err.message)) {

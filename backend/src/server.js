@@ -78,6 +78,9 @@ process.on('SIGINT',  () => close('SIGINT'))
 process.on('SIGTERM', () => close('SIGTERM'))
 
 start().catch(err => {
-  console.error('[fatal] failed to start:', err)
+  console.error('\n[fatal] failed to start application')
+  console.error(err)
+  console.error(err?.message)
+  console.error(err?.stack)
   process.exit(1)
 })
