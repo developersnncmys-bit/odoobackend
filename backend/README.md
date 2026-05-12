@@ -1,6 +1,6 @@
 # Absolute Concepts CRM — Backend API
 
-Node.js + Express + **MongoDB (Mongoose)** REST API for the Odoo CRM flow described in the requirements document.
+Node.js + Express + **MongoDB (Mongoose)** REST API for the Absolute Concepts Events & Entertainment CRM flow described in the requirements document.
 
 - **Runtime:** Node 18+ (ESM)
 - **Framework:** Express 4

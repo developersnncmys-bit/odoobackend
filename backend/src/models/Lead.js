@@ -31,7 +31,7 @@ const leadSchema = new mongoose.Schema({
   // §4.2 Event information
   eventName:  { type: String, required: true, trim: true },
   eventType:  { type: String, required: true },
-  category:   { type: String, enum: ['corporate', 'wedding', 'mice', 'exhibition'] },
+  category:   { type: String, enum: ['corporate', 'wedding', 'social'] },
   eventDate:  { type: String, required: true },
   eventTime:  { type: String, default: '' },
   setupDate:  { type: String, default: '' },

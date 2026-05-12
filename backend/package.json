@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Node.js + Express + MongoDB REST API for the Odoo CRM (Absolute Concepts Events & Entertainment).",
+  "description": "Node.js + Express + MongoDB REST API for the Absolute Concepts Events & Entertainment CRM (absoluteconcepts.in).",
   "scripts": {
     "dev":   "nodemon src/server.js",
     "start": "node src/server.js"

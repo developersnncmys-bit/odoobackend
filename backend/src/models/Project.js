@@ -32,7 +32,7 @@ const projectSchema = new mongoose.Schema({
 
   name:      { type: String, required: true },
   client:    { type: String, required: true },
-  category:  { type: String, enum: ['corporate', 'wedding', 'mice', 'exhibition'] },
+  category:  { type: String, enum: ['corporate', 'wedding', 'social'] },
   eventDate: { type: String, required: true },
   setupDate: { type: String, default: '' },
   venue:     { type: String, required: true },

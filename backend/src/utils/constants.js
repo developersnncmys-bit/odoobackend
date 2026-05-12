@@ -17,7 +17,8 @@ export const TASK_STATUSES      = ['Pending', 'In Progress', 'Done', 'Delayed']
 export const VENDOR_STATUSES    = ['Pending', 'Confirmed', 'Cancelled']
 
 export const PROPOSAL_STATUSES   = ['Draft', 'Sent', 'Approved', 'Rejected']
-export const PROPOSAL_CATEGORIES = ['Corporate Proposal', 'Wedding Proposal', 'MICE Proposal', 'Exhibition Proposal', 'Virtual Event Proposal']
+// Aligned with the three service verticals on absoluteconcepts.in
+export const PROPOSAL_CATEGORIES = ['Corporate Proposal', 'Wedding Proposal', 'Social Events Proposal']
 
 export const INVOICE_STATUSES = ['Pending', 'Sent', 'Paid', 'Overdue']
 
@@ -27,11 +28,55 @@ export const DOCUMENT_TYPES = ['Proposal', 'Quotation', 'PO', 'Vendor Contract',
 
 export const ROLES = ['Admin', ...DEPARTMENTS]
 
+// Service verticals — taken verbatim from absoluteconcepts.in
+// (https://absoluteconcepts.in/services/). MICE, Inaugurations, Trade Shows
+// and Conferences are SUB-TYPES under Corporate Events on the live site, not
+// separate top-level categories.
 export const BUSINESS_CATEGORIES = [
-  { id: 'corporate',  label: 'Corporate Events', types: ['Conference', 'Annual Event', 'Townhall', 'CSR Activity', 'Trade Show', 'Inauguration', 'Milestone Celebration', 'Family Day', 'Festive Celebration', 'Partner Meet', 'Team Building'] },
-  { id: 'wedding',    label: 'Weddings',          types: ['Wedding', 'Engagement', 'Theme Party', 'Baby Shower', 'Birthday'] },
-  { id: 'mice',       label: 'MICE',              types: ['Meeting', 'Incentive', 'Conference', 'Exhibition'] },
-  { id: 'exhibition', label: 'Exhibitions',       types: ['Trade Exhibition', 'Product Showcase', 'Expo Booth'] },
+  {
+    id: 'corporate',
+    label: 'Corporate Events',
+    types: [
+      'MICE (Meetings, Incentives, Conferences & Exhibitions)',
+      'Inauguration / Factory Inauguration',
+      'Annual Corporate Event',
+      'Conference / Seminar',
+      'Trade Show / Workshop',
+      'Team Building Activity',
+      'Shareholder Meeting',
+      'Company Milestone / Founder\'s Day',
+      'Sales, Dealers & Supplier Conference',
+      'Destination Corporate Event',
+      'CSR Event',
+    ],
+  },
+  {
+    id: 'wedding',
+    label: 'Wedding',
+    types: [
+      'Wedding',
+      'Engagement',
+      'Pre-Wedding Function',
+      'Reception',
+    ],
+  },
+  {
+    id: 'social',
+    label: 'Social Events',
+    types: [
+      'Birthday Celebration',
+      'Anniversary Celebration',
+      'Jubilee Celebration',
+      'Teenage Celebration',
+      'Fashion Show',
+      'Baby Shower',
+      'Naming Ceremony',
+      'Kitty Party',
+      'Theme Party',
+      'Candlelight Dinner Setup',
+      'Room Decoration',
+    ],
+  },
 ]
 
 export const GST_RATE = 0.18
