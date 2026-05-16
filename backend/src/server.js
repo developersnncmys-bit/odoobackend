@@ -11,9 +11,12 @@ import { initCounters } from './utils/ids.js'
 import { notFound, errorHandler } from './middleware/errors.js'
 
 // route modules
+import authRouter          from './routes/auth.js'
+import usersRouter         from './routes/users.js'
 import leadsRouter         from './routes/leads.js'
 import projectsRouter      from './routes/projects.js'
 import proposalsRouter     from './routes/proposals.js'
+import quotationsRouter    from './routes/quotations.js'
 import invoicesRouter      from './routes/invoices.js'
 import calendarRouter      from './routes/calendar.js'
 import documentsRouter     from './routes/documents.js'
@@ -34,9 +37,12 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.use('/api/meta',          metaRouter)
+app.use('/api/auth',          authRouter)
+app.use('/api/users',         usersRouter)
 app.use('/api/leads',         leadsRouter)
 app.use('/api/projects',      projectsRouter)
 app.use('/api/proposals',     proposalsRouter)
+app.use('/api/quotations',    quotationsRouter)
 app.use('/api/invoices',      invoicesRouter)
 app.use('/api/calendar',      calendarRouter)
 app.use('/api/documents',     documentsRouter)

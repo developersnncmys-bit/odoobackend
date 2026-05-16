@@ -52,6 +52,57 @@ export async function create(req, res) {
   res.status(201).json(lead.toJSON())
 }
 
+/**
+ * POST /api/leads/bulk
+ * Body: { leads: [ {clientName, ...}, ... ] }
+ *
+ * Per-row try/catch so a single bad row doesn't abort the whole import.
+ * Returns { created: [...], failed: [{row, error, details, data}], total }.
+ */
+export async function bulkCreate(req, res) {
+  const list = Array.isArray(req.body) ? req.body : req.body?.leads
+  if (!Array.isArray(list) || list.length === 0) {
+    throw new HttpError(400, '`leads` array is required')
+  }
+  if (list.length > 500) {
+    throw new HttpError(400, 'Bulk import is capped at 500 rows per request')
+  }
+
+  const today  = new Date().toISOString().slice(0, 10)
+  const created = []
+  const failed  = []
+
+  for (let i = 0; i < list.length; i++) {
+    const row = list[i] || {}
+    try {
+      validateCreate(row)
+      const id = await nextId('leads')
+      const lead = await Lead.create({
+        _id: id,
+        createdAt: today,
+        activities: [
+          { date: today, type: 'note', user: row.bdOwner || 'u1', text: 'Lead created via bulk import.' },
+        ],
+        ...row,
+        guestCount:      Number(row.guestCount      || 0),
+        budget:          Number(row.budget          || 0),
+        expectedRevenue: Number(row.expectedRevenue || 0),
+        probability:     Number(row.probability     || 0),
+      })
+      created.push(lead.toJSON())
+    } catch (err) {
+      failed.push({
+        row: i + 1,
+        error: err.message,
+        details: err.details,
+        data: row,
+      })
+    }
+  }
+
+  res.status(201).json({ created, failed, total: list.length })
+}
+
 /* ------------ Single ------------ */
 
 export async function get(req, res) {

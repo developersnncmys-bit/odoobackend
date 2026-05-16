@@ -7,10 +7,12 @@ const CONFIG = {
   projects:       { prefix: 'P-',   initial: 2001 },
   proposals:      { prefix: 'PR-',  initial: 3001 },
   invoices:       { prefix: 'INV-', initial: 4001 },
+  quotations:     { prefix: 'Q-',   initial: 5001 },
   calendarEvents: { prefix: 'E-',   initial: 1 },
   documents:      { prefix: 'D-',   initial: 1 },
   team:           { prefix: 'u',    initial: 1 },
   notifications:  { prefix: 'N',    initial: 1 },
+  users:          { prefix: 'usr-', initial: 1 },
 }
 
 /**
